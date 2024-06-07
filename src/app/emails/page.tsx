@@ -3,7 +3,7 @@ import Image from "next/image";
 import Dropdown from "@/components/Dropdown";
 import { useEffect, useState } from "react";
 import OpenAIModal from "@/components/OpenAIModal";
-import GetDetails from "@/components/GetDetails";
+import Profile from "@/components/Profile";
 
 const Emails = () => {
   const [modalState, setModalState] = useState<boolean>(false);
@@ -29,7 +29,7 @@ const Emails = () => {
   return (
     <div className="bg-white p-10">
       <div className="flex justify-between items-center	">
-        <GetDetails />
+        <Profile />
         <Dropdown modalStateHandler={modalStateHandler} />
       </div>
       <div className="flex justify-between items-center">
