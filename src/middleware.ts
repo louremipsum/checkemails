@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { createSupabaseReqResClient } from "@/utils/supabase/server";
+import { createSupabaseReqResClient } from "@/utils/supabase/server-client";
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
@@ -11,10 +11,8 @@ export async function middleware(request: NextRequest) {
   const supabase = await createSupabaseReqResClient(request, response);
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  const user = session?.user;
+    data: { user },
+  } = await supabase.auth.getUser();
 
   // protects the "/emails" route and its sub-routes
   if (!user && request.nextUrl.pathname.startsWith("/emails")) {
