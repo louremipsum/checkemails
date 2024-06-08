@@ -111,7 +111,7 @@ const Emails = () => {
 
   return (
     <>
-      <div className="bg-slate-50 p-10 min-h-max">
+      <div className="bg-bgImg bg-no-repeat bg-cover bg-center bg-fixed p-10 min-h-max">
         <div className="flex justify-between items-center	">
           <Profile />
           <Dropdown modalStateHandler={modalStateHandler} />
