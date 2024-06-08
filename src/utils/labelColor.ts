@@ -8,17 +8,17 @@ import { Label } from "@/app/types";
 export default function getLabelColor(label: Label) {
   switch (label) {
     case Label.Important:
-      return "bg-green-500 text-white";
+      return "bg-green-500";
     case Label.Marketing:
-      return "bg-yellow-500 text-white";
+      return "bg-yellow-500";
     case Label.Spam:
-      return "bg-red-500 text-white";
-    case Label.Promotions:
-      return "bg-purple-500 text-white";
+      return "bg-red-500";
+    case Label.Promotional:
+      return "bg-purple-500";
     case Label.Social:
-      return "bg-blue-500 text-white";
+      return "bg-blue-500";
     case Label.General:
-      return "bg-indigo-500 text-white";
+      return "bg-indigo-500";
     case Label.Nothing:
       return "invisible";
     default:
