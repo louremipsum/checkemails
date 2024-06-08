@@ -7,7 +7,7 @@ interface StoreTokenRequest {
   refresh_token: string;
 }
 
-export async function storeToken(request: StoreTokenRequest) {
+async function storeToken(request: StoreTokenRequest) {
   cookies().set({
     name: "accessToken",
     value: request.token,
