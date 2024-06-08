@@ -19,7 +19,7 @@ const Profile = () => {
   }, [supabase.auth]);
 
   return (
-    <div className="flex  items-center justify-between space-x-6 p-8">
+    <div className="flex  items-center justify-between space-x-6 py-8 ">
       <Image
         className="h-20 w-20 flex-shrink-0 rounded-full bg-gray-300"
         src={data?.user_metadata.avatar_url}
