@@ -2,7 +2,7 @@ export enum Label {
   Important = "Important",
   Marketing = "Marketing",
   Spam = "Spam",
-  Promotions = "Promotions",
+  Promotional = "Promotional",
   Social = "Social",
   General = "General",
   Nothing = "Nothing",
