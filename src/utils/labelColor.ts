@@ -1,5 +1,10 @@
 import { Label } from "@/app/types";
 
+/**
+ * Returns the Tailwind CSS class for the given label.
+ * @param label - The label to get the color for.
+ * @returns The Tailwind CSS class representing the color for the label.
+ */
 export default function getLabelColor(label: Label) {
   switch (label) {
     case Label.Important:
