@@ -1,8 +1,28 @@
 import { emailDetailsType, Label } from "@/app/types";
-import getLabelColor from "@/utils/labelColor";
 import React from "react";
 import { Letter } from "react-letter";
 import Image from "next/image";
+
+function getLabelColor(label: Label) {
+  switch (label) {
+    case Label.Important:
+      return "bg-green-500";
+    case Label.Marketing:
+      return "bg-yellow-500";
+    case Label.Spam:
+      return "bg-red-500";
+    case Label.Promotional:
+      return "bg-purple-500";
+    case Label.Social:
+      return "bg-blue-500";
+    case Label.General:
+      return "bg-indigo-500";
+    case Label.Nothing:
+      return "invisible";
+    default:
+      return "bg-gray-200 text-gray-800";
+  }
+}
 
 interface DrawerProps extends emailDetailsType {
   isDrawerVisible: boolean;

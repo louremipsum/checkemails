@@ -1,6 +1,26 @@
 import { emailDetailsType, Label } from "@/app/types";
-import getLabelColor from "@/utils/labelColor";
 import React from "react";
+
+function getLabelColor(label: Label) {
+  switch (label) {
+    case Label.Important:
+      return "bg-green-500";
+    case Label.Marketing:
+      return "bg-yellow-500";
+    case Label.Spam:
+      return "bg-red-500";
+    case Label.Promotional:
+      return "bg-purple-500";
+    case Label.Social:
+      return "bg-blue-500";
+    case Label.General:
+      return "bg-indigo-500";
+    case Label.Nothing:
+      return "invisible";
+    default:
+      return "bg-gray-200 text-gray-800";
+  }
+}
 
 const EmailCard = ({ category, from, snippet, index }: emailDetailsType) => {
   const chipClasses = `inline-block rounded-full px-3 py-1 text-sm font-semibold ${getLabelColor(
@@ -13,7 +33,7 @@ const EmailCard = ({ category, from, snippet, index }: emailDetailsType) => {
     >
       <div className="flex justify-between items-center mt-1 mb-4">
         <h2 className="text-lg font-semibold text-gray-800 truncate">{from}</h2>
-        <span className={chipClasses}>{category}</span>
+        <span className={chipClasses.toString()}>{category}</span>
       </div>
       <p className="text-sm text-gray-600 truncate">{snippet}</p>
     </div>
