@@ -14,6 +14,9 @@ const config: Config = {
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
         bgImg: "url('/bg.svg')",
       },
+      scale: {
+        "101": "1.01",
+      },
     },
   },
   plugins: [],
