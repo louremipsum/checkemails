@@ -4,9 +4,11 @@ import Dropdown from "@/components/Dropdown";
 import { useEffect, useState } from "react";
 import OpenAIModal from "@/components/OpenAIModal";
 import Profile from "@/components/Profile";
+import EmailList from "@/components/EmailList";
 
 const Emails = () => {
   const [modalState, setModalState] = useState<boolean>(false);
+  const [maxResults, setMaxResults] = useState(15);
   const modalStateHandler = (state: boolean) => {
     setModalState(state);
   };
@@ -27,15 +29,27 @@ const Emails = () => {
   }, []);
 
   return (
-    <div className="bg-white p-10">
+    <div className="bg-slate-50 p-10 h-screen">
       <div className="flex justify-between items-center	">
         <Profile />
         <Dropdown modalStateHandler={modalStateHandler} />
       </div>
       <div className="flex justify-between items-center">
-        <div className="flex justify-start p-4 ">
+        <select
+          className="form-select block p-1  rounded-lg border border-gray-400 border-solid mt-1 text-gray-700"
+          value={maxResults}
+          onChange={(e) => setMaxResults(parseInt(e.target.value))}
+        >
+          {[15, 20, 25, 30, 35, 40, 45].map((value) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </select>
+
+        <div className="flex justify-start py-4">
           <button
-            className={`flex items-center p-3 border border-transparent text-base font-medium rounded-md text-slate-50 bg-yellow-400 hover:bg-yellow-500 transition-all duration-300 disabled:cursor-not-allowed disabled:bg-zinc-200`}
+            className={`flex items-center p-3 border border-transparent text-base font-medium rounded-md text-slate-50 bg-yellow-400 hover:bg-yellow-500 transition-all duration-300 disabled:cursor-not-allowed disabled:text-gray-700 disabled:bg-zinc-200`}
             disabled={keyInfo.disable}
           >
             <div className="pr-2">
@@ -63,6 +77,9 @@ const Emails = () => {
           modalstate={modalStateHandler}
           keyInfoHandler={keyInfoHandler}
         />
+      </div>
+      <div>
+        <EmailList maxResults={maxResults} />
       </div>
     </div>
   );
