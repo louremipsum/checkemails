@@ -5,6 +5,7 @@ export enum Label {
   Promotions = "Promotions",
   Social = "Social",
   General = "General",
+  Nothing = "Nothing",
 }
 
 export type emailDetailsType = {
@@ -27,7 +28,7 @@ type Header = {
   value: string;
 };
 
-type MessagePart = {
+export type MessagePart = {
   partId: string;
   mimeType: string;
   filename: string;

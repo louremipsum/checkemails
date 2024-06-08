@@ -19,6 +19,8 @@ export default function getLabelColor(label: Label) {
       return "bg-blue-500 text-white";
     case Label.General:
       return "bg-indigo-500 text-white";
+    case Label.Nothing:
+      return "invisible";
     default:
       return "bg-gray-200 text-gray-800";
   }
