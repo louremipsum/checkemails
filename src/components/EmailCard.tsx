@@ -13,7 +13,7 @@ const EmailCard = ({ category, from, snippet, index }: emailDetailsType) => {
     >
       <div className="flex justify-between items-center mt-1 mb-4">
         <h2 className="text-lg font-semibold text-gray-800 truncate">{from}</h2>
-        {category && <span className={chipClasses}>{category}</span>}
+        <span className={chipClasses}>{category}</span>
       </div>
       <p className="text-sm text-gray-600 truncate">{snippet}</p>
     </div>
