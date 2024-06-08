@@ -8,9 +8,14 @@ const Login = (props: { nextUrl?: string }) => {
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${location.origin}/auth/callback?next=${
+        redirectTo: `${location.origin}/api/auth/callback?next=${
           props.nextUrl || ""
         }`,
+        queryParams: {
+          access_type: "offline",
+          prompt: "consent",
+          scopes: "https://www.googleapis.com/auth/gmail.readonly",
+        },
       },
     });
   };
