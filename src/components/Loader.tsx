@@ -1,6 +1,9 @@
 const Loader = () => {
   return (
-    <div className="text-center flex items-center justify-center">
+    <div
+      className="text-center flex justify-center items-center"
+      style={{ height: "40vh" }}
+    >
       <div role="status">
         <svg
           aria-hidden="true"
