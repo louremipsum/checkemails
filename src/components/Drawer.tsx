@@ -26,11 +26,11 @@ function getLabelColor(label: Label) {
 
 interface DrawerProps extends emailDetailsType {
   isDrawerVisible: boolean;
-  handleDrawerVisibility: (state: boolean) => void;
+  handleDrawerVisibility: () => void;
 }
 
 const Drawer = (props: DrawerProps) => {
-  const drawerClasses = `fixed top-0 right-0 z-50 h-screen p-4 overflow-y-auto transition-transform bg-white w-3/5 shadow-xl ${
+  const drawerClasses = `fixed top-0 right-0 z-50 h-screen p-4 overscroll-none overflow-y-auto transition-transform bg-white w-3/5 shadow-xl ${
     props.isDrawerVisible ? "" : "translate-x-full"
   }`;
   const overlayClasses = `fixed top-0 left-0 z-40 w-screen h-screen bg-black transition-opacity ${
@@ -44,7 +44,7 @@ const Drawer = (props: DrawerProps) => {
     <>
       <div
         className={overlayClasses}
-        onClick={() => props.handleDrawerVisibility(false)}
+        onClick={() => props.handleDrawerVisibility()}
       ></div>
       <div className={drawerClasses} tabIndex={-1}>
         <h5 className="inline-flex items-center mb-4 text-base font-semibold text-gray-500 dark:text-gray-400">
@@ -52,7 +52,7 @@ const Drawer = (props: DrawerProps) => {
         </h5>
         <button
           type="button"
-          onClick={() => props.handleDrawerVisibility(false)}
+          onClick={() => props.handleDrawerVisibility()}
           className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 absolute top-2.5 end-2.5 inline-flex items-center justify-center"
         >
           <Image src={"/x.svg"} alt="Close Button" width={24} height={24} />
