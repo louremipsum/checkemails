@@ -1,5 +1,7 @@
 # Check.Email
 
+![checkemails vercel app_](https://github.com/louremipsum/checkemails/assets/72456774/871f8378-c62a-42ca-a91c-fce3430d33b9)
+
 Check.Email is an application that classifies emails using AI. It leverages the power of Supabase for authentication services and Google's Gmail API for email interactions. It uses `Langchain/openai` for Classification.
 
 ## Prerequisites
