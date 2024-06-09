@@ -28,7 +28,7 @@ const Emails = () => {
     setKeyInfo({ key: key, disable: disable });
   };
 
-  const clasifyHandler = async () => {
+  const classifyHandler = async (retryCount = 0) => {
     if (!emails) return;
     setLoading(true);
     const dataToSend = emails.map((item) => {
@@ -40,7 +40,7 @@ const Emails = () => {
       };
     });
     try {
-      const respone = await fetch("/api/classify", {
+      const response = await fetch("/api/classify", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${keyInfo.key}`,
@@ -48,7 +48,7 @@ const Emails = () => {
         },
         body: JSON.stringify(dataToSend),
       });
-      const respData = await respone.json();
+      const respData = await response.json();
 
       const updatedEmails = emails.map((item) => {
         const selectedItem = respData.classifiedEmails.find(
@@ -63,8 +63,13 @@ const Emails = () => {
       setLoading(false);
       toast.success("Emails classified successfully! 🎉");
     } catch (error) {
-      toast.error("Error while classifying emails");
-      setLoading(false);
+      if (retryCount < 1) {
+        toast("Error occurred, retrying...", { icon: "ℹ️" });
+        await classifyHandler(retryCount + 1);
+      } else {
+        toast.error("Error while classifying emails");
+        setLoading(false);
+      }
     }
   };
 
@@ -89,7 +94,9 @@ const Emails = () => {
           }
           const data = await response.json();
           setEmails(data.emails);
+          setIsClassifyLoading(false);
         } catch (err) {
+          setIsClassifyLoading(false);
           if (err instanceof Error) {
             toast.error(err.message);
             setError(err.message);
@@ -97,8 +104,6 @@ const Emails = () => {
             toast.error("An unexpected error occurred");
             setError("An unexpected error occurred");
           }
-        } finally {
-          setIsClassifyLoading(false);
         }
       }
     };
@@ -137,7 +142,7 @@ const Emails = () => {
                   : ""
               } flex items-center p-3 border border-transparent text-base font-medium rounded-md text-slate-50 bg-yellow-400 hover:bg-yellow-500 transition-all duration-300 disabled:cursor-not-allowed disabled:text-gray-700 disabled:bg-zinc-200`}
               disabled={keyInfo.disable || loading}
-              onClick={clasifyHandler}
+              onClick={() => classifyHandler()}
             >
               <div className="pr-2">
                 {loading ? (
@@ -171,22 +176,26 @@ const Emails = () => {
             </button>
           </div>
         </div>
-        <div
-          className={`fixed top-0 right-0 left-0 z-50 flex justify-center items-center w-full h-[calc(100%-1rem)] max-h-full overflow-y-auto overflow-x-hidden transition-all duration-200 transform ease-in-out ${
-            modalState
-              ? "opacity-100 scale-100 visible"
-              : "opacity-0  invisible"
-          }`}
-          style={{
-            backgroundColor: modalState ? "rgba(0, 0, 0, 0.2)" : "transparent",
-            backdropFilter: modalState ? "blur(5px)" : "none",
-          }}
-        >
-          <OpenAIModal
-            modalstate={modalStateHandler}
-            keyInfoHandler={keyInfoHandler}
-          />
-        </div>
+        {modalState && (
+          <div
+            className={`fixed top-0 right-0 left-0 z-50 flex justify-center items-center w-full h-[calc(100%-1rem)] max-h-full overflow-y-auto overflow-x-hidden transition-all duration-200 transform ease-in-out ${
+              modalState
+                ? "opacity-100 scale-100 visible"
+                : "opacity-0  invisible"
+            }`}
+            style={{
+              backgroundColor: modalState
+                ? "rgba(0, 0, 0, 0.2)"
+                : "transparent",
+              backdropFilter: modalState ? "blur(5px)" : "none",
+            }}
+          >
+            <OpenAIModal
+              modalstate={modalStateHandler}
+              keyInfoHandler={keyInfoHandler}
+            />
+          </div>
+        )}
         <div>
           <h1 className="text-gray-500 text-3xl my-5">Recent Emails</h1>
           <EmailList
