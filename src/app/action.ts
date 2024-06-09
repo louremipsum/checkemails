@@ -1,43 +1,13 @@
 import { gmail_v1 } from "googleapis";
 import { MessagePart } from "./types";
 import { htmlToText } from "@/utils/htmlToText";
-import { OpenAI } from "openai";
-var he = require("he");
+import { ChatOpenAI, ChatOpenAICallOptions } from "@langchain/openai";
+import { HumanMessage, SystemMessage } from "@langchain/core/messages";
+import { JsonOutputParser } from "@langchain/core/output_parsers";
 
-// Define the function specification for email classification
-const tools = [
-  {
-    type: "function",
-    function: {
-      name: "classify_email",
-      description: "Classify emails into categories",
-      parameters: {
-        type: "object",
-        properties: {
-          emails: {
-            type: "array",
-            description: "Array of emails to classify",
-            items: {
-              type: "object",
-              properties: {
-                index: {
-                  type: "integer",
-                  description: "The index of the email",
-                },
-                message: {
-                  type: "string",
-                  description: "The content of the email",
-                },
-              },
-              required: ["index", "message"],
-            },
-          },
-        },
-        required: ["emails"],
-      },
-    },
-  },
-];
+import { PromptTemplate, FewShotPromptTemplate } from "@langchain/core/prompts";
+
+var he = require("he");
 
 /**
  * Decodes a base64 encoded string.
@@ -151,99 +121,98 @@ const processPlainText = (plainTextStr: string): string => {
 // Few-shot learning examples
 const examples = [
   {
-    index: 1,
     message:
       "FROM: vercel \n We charged $5.90 to your credit card ending in 2246 to fund and you need to immediately update your payment method.",
     category: "Important",
   },
   {
-    index: 2,
     message:
       "FROM: zomato \nGet 20% off your next order with code SAVE20 at checkout. Limited time offer!",
     category: "Promotional",
   },
   {
-    index: 3,
     message:
       "FROM: instagram \nYou've been tagged in a new photo on Instagram by Sarah.",
     category: "Social",
   },
   {
-    index: 4,
     message:
       "FROM: technews \nSubscribe to our newsletter for the latest updates in tech and innovation.",
     category: "Marketing",
   },
   {
-    index: 5,
     message:
       "FROM: cooldude \nYou've won a free vacation to the Bahamas! Click here to claim your prize.",
     category: "Spam",
   },
 ];
 
+interface OutputParsed {
+  index: number;
+  message: string;
+}
+
 /**
- * Classifies the given email content into different categories.
- *
- * @param emailJSONData - An array of objects representing the email content. Each object should have properties `index` (number) and `message` (string).
- * @param openAI - An instance of the OpenAI client.
- * @returns A promise that resolves to an array of objects with properties `index` (number) and `category` (string), representing the classification results.
+ * Classifies the given email JSON data into categories using Langchain.
+ * @param emailJSONData - The email JSON data to be classified.
+ * @param model - The ChatOpenAI model from Langchain used for classification.
+ * @returns A promise that resolves to an array of classified email objects.
  */
 const classifyEmail = async (
-  emailJSONData: { index: number; message: string }[],
-  openAI: OpenAI
-): Promise<{ index: number; category: string }[]> => {
-  const prompt = `
-  Classify the following email content into one of the following categories: Important, Promotional, Social, Marketing, Spam, General.
-  Here are the criteria for each category:
-  - Important: Emails that are personal or work-related and require immediate attention.
-  - Promotional: Emails related to sales, discounts, and marketing campaigns.
-  - Social: Emails from social networks, friends, and family.
-  - Marketing: Emails related to marketing, newsletters, and notifications.
-  - Spam: Unwanted or unsolicited emails.
-  - General: If none of the above are matched, use General.
+  emailJSONData: OutputParsed[],
+  model: ChatOpenAI<ChatOpenAICallOptions>
+): Promise<OutputParsed[]> => {
+  const examplePrompt = PromptTemplate.fromTemplate(
+    "Email content: {message}\nCategory: {category}"
+  );
 
-  Return the result in a JSON format as an array of objects with the following structure: { "index": number, "category": string }.
-  Examples:
-${examples
-  .map(
-    (example) => `
-Email content: "${example.message}"
-Category: "${example.category}"`
-  )
-  .join("\n")}
+  const fewShotPrompt = new FewShotPromptTemplate({
+    examples,
+    examplePrompt: examplePrompt,
+    inputVariables: ["emailJSONData"],
+    exampleSeparator: "\n\n",
+    prefix: `Classify the following email content into one of the following categories: Important, Promotional, Social, Marketing, Spam, General.
+Here are the criteria for each category:
+- Important: Emails that are personal or work-related and require immediate attention.
+- Promotional: Emails related to sales, discounts, and marketing campaigns.
+- Social: Emails from social networks, friends, and family.
+- Marketing: Emails related to marketing, newsletters, and notifications.
+- Spam: Unwanted or unsolicited emails.
+- General: If none of the above are matched, use General.
+Respond with a valid JSON format as an array of objects with each object containing the keys 'index' (the position of the email in the input array) and 'category'.
 
-Now, classify the following emails:
-
-Emails: ${JSON.stringify(emailJSONData)}
-  `;
-
-  const completion = await openAI.chat.completions.create({
-    model: "gpt-4o",
-    response_format: { type: "json_object" },
-    temperature: 0.5,
-    max_tokens: 3200,
-    top_p: 1,
-    frequency_penalty: 0,
-    presence_penalty: 0,
-    messages: [
-      {
-        role: "system",
-        content:
-          "You are a expert assistant that classifies emails. The email starts with 'FROM' to indicate the email's sender and you should use that information along with the message to classify the email.\n Here are the criteria for each category:\n  - Important: Emails that are personal or work-related and require immediate attention.\n  - Promotional: Emails related to sales, discounts, and marketing campaigns.\n  - Social: Emails from social networks, friends, and family.\n  - Marketing: Emails related to marketing, newsletters, and notifications.\n  - Spam: Unwanted or unsolicited emails.\n  - General: If none of the above match, use General.",
-      },
-      {
-        role: "user",
-        content: prompt,
-      },
-    ],
+Here are some examples:`,
+    suffix: "\nNow, classify the following emails:\nEmails: [{emailJSONData}]",
   });
 
-  // Parse the JSON response
-  const content = JSON.parse(completion.choices[0].message.content ?? "");
-  const results: { index: number; category: string }[] = content?.results;
+  // Format the prompt with the emailJSONData
+  const formattedEmailData = emailJSONData.map((email, index) => ({
+    index,
+    message: email.message,
+  }));
 
-  return results ?? [];
+  const prompt = await fewShotPrompt.format({
+    emailJSONData: formattedEmailData
+      .map(
+        (email) =>
+          `{"index": ${email.index}, "message": "${email.message
+            .replace(/\n/g, "\\n")
+            .replace(/"/g, '\\"')}"}`
+      )
+      .join(", "),
+  });
+
+  const messages = [
+    new SystemMessage(
+      "You are an expert assistant that classifies emails. The email starts with 'FROM' to indicate the email's sender and you should use that information along with the message to classify the email."
+    ),
+    new HumanMessage(prompt),
+  ];
+
+  const parser = new JsonOutputParser<OutputParsed[]>();
+  const ans = await model.invoke(messages);
+  const result = await parser.invoke(ans);
+  return result ?? [];
 };
 
 /**
@@ -262,20 +231,25 @@ const ClassifyEmails = async (
   }[],
   OPENAI_API_KEY: string
 ) => {
-  const emailJSONData: { index: number; message: string }[] = [];
+  const emailJSONData: OutputParsed[] = [];
   emails.map((email) => {
     // Remove all types of links from plainText
     const plainText = processPlainText(email.plainText);
-    const content = `FROM: ${email.from} \n ${plainText}  ${
+    const content = `Email content: FROM: ${email.from} \n ${plainText}  ${
       htmlToText(email.htmlText) ?? ""
     }`;
     emailJSONData.push({ index: email.index, message: content });
   });
 
-  const openai = new OpenAI({
+  // const openai = new OpenAI({
+  //   apiKey: OPENAI_API_KEY,
+  // });
+  const model = new ChatOpenAI({
+    model: "gpt-4o",
+    temperature: 0,
     apiKey: OPENAI_API_KEY,
   });
-  const classifiedEmails = await classifyEmail(emailJSONData, openai);
+  const classifiedEmails = await classifyEmail(emailJSONData, model);
   return classifiedEmails;
 };
 
