@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import Dropdown from "@/components/Dropdown";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import OpenAIModal from "@/components/OpenAIModal";
 import Profile from "@/components/Profile";
 import EmailList from "@/components/EmailList";
@@ -198,11 +198,13 @@ const Emails = () => {
         )}
         <div>
           <h1 className="text-gray-500 text-3xl my-5">Recent Emails</h1>
-          <EmailList
-            emails={emails}
-            error={error}
-            isLoading={isClassifyLoading}
-          />
+          <Suspense>
+            <EmailList
+              emails={emails}
+              error={error}
+              isLoading={isClassifyLoading}
+            />
+          </Suspense>
         </div>
       </div>
       <div className="flex bg-slate-50 items-center justify-center border-solid border-gray-200 border py-5 px-4">
