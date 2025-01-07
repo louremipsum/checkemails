@@ -4,6 +4,10 @@
 
 Check.Email is an application that classifies emails using AI. It leverages the power of Supabase for authentication services and Google's Gmail API for email interactions. It uses `Langchain/openai` for Classification.
 
+## Demo
+
+https://youtu.be/vkd0Qzbx_Q8?si=Yj-7R7koiVqB4fLN
+
 ## Prerequisites
 
 Before you begin, ensure you have the following:
